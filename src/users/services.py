@@ -10,7 +10,7 @@ from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
 from src.users.models import User
 from src.users.repositories import UserRepository
-from src.users.schemas import UserCreate, TokenData, UserEdit
+from src.users.schemas import UserCreate, TokenData, UserEdit, UserLogin
 from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, AccessException, \
     EmailExistsException
 
@@ -63,11 +63,11 @@ class UserService:
             expire_timedelta=timedelta(days=auth_config.refresh_token_expire_days)
         )
 
-    async def authenticate_user(self, email: str, password: str) -> Optional[User]:
-        user = await self.repository.get_user_by_email(email)
+    async def authenticate_user(self, user_login: UserLogin) -> Optional[User]:
+        user = await self.repository.get_user_by_email(user_login.email)
         if not user:
             raise CredentialException()
-        if not validate_password(password, user.password_hash):
+        if not validate_password(user_login.password, user.password_hash):
             raise CredentialException()
 
         return user

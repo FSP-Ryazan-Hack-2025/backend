@@ -3,19 +3,14 @@ version: '3.9'
 services:
   api:
     build: .
-    environment:
-      - MODE=PROD
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASS=postgres
-      - DB_NAME=FastAPI-Pattern
-      - MIN_ID=10000000
-      - MAX_ID=99999999
+    env_file:
+      - .env
     depends_on:
       - postgres
     ports:
       - "8000:8000"
+    volumes:
+      - ./assets:/app/assets
 
   postgres:
     image: postgres:latest

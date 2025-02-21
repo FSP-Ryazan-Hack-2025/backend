@@ -1,5 +1,5 @@
-from datetime import datetime
-from pydantic import BaseModel
+from typing import Annotated
+from pydantic import BaseModel, Field
 
 from src.users.models import Gender
 
@@ -19,11 +19,16 @@ class Token(BaseModel):
 
 
 class UserCreate(BaseModel):
-    name: str
-    surname: str
-    email: str
+    name: Annotated[str, Field(min_length=2, max_length=50)]
+    surname: Annotated[str, Field(min_length=2, max_length=50)]
+    email: Annotated[str, Field(min_length=2, max_length=50)]
     gender: Gender
-    password: str
+    password: Annotated[str, Field(min_length=2, max_length=25)]
+
+
+class UserLogin(BaseModel):
+    email: Annotated[str, Field(min_length=2, max_length=50)]
+    password: Annotated[str, Field(min_length=2, max_length=25)]
 
 
 class UserEdit(BaseModel):
@@ -38,7 +43,3 @@ class UserResponse(BaseModel):
     surname: str
     email: str
     gender: Gender
-    is_admin: bool
-    is_verified: bool
-    is_active: bool
-    created_at: datetime
