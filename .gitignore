@@ -34,3 +34,4 @@ cython_debug/
 /.vscode
 
 /certs/
+/pgdata/
