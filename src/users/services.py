@@ -1,8 +1,12 @@
+import os
+import shutil
+from pathlib import Path
+
 import jwt
 
 from datetime import timedelta
 from typing import Optional, List
-from fastapi import Depends
+from fastapi import Depends, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from config_data.config import Config, load_config
@@ -10,9 +14,9 @@ from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
 from src.users.models import User
 from src.users.repositories import UserRepository
-from src.users.schemas import UserCreate, TokenData, UserEdit, UserLogin
+from src.users.schemas import UserCreate, TokenData, UserEdit, UserLogin, SuccessfulResponse
 from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, AccessException, \
-    EmailExistsException
+    EmailExistsException, ErrorLoadAvatarException, ErrorDeleteAvatarException
 
 http_bearer = HTTPBearer()
 
@@ -101,6 +105,35 @@ class UserService:
             raise CredentialException()
 
         return user
+
+    async def add_avatar(self, avatar: UploadFile, user: User) -> SuccessfulResponse:
+        root = Path(__file__).parent.parent.parent
+        avatar_path = os.path.join(root, "assets", "avatars", f"{user.id}.webp")
+
+        try:
+            with open(avatar_path, "wb+") as avatar_obj:
+                shutil.copyfileobj(avatar.file, avatar_obj)
+        except Exception as e:
+            print("Error loading avatar:", e)
+            raise ErrorLoadAvatarException()
+
+        return SuccessfulResponse()
+
+    async def get_avatar_url(self, user: User) -> str:
+        return f"static/avatars/{user.id}.webp"
+
+    async def delete_avatar(self, user: User) -> SuccessfulResponse:
+        root = Path(__file__).parent.parent.parent
+        avatar_path = os.path.join(root, "assets", "avatars", f"{user.id}.webp")
+
+        try:
+            if os.path.exists(avatar_path):
+                os.remove(avatar_path)
+        except Exception as e:
+            print("Error deleting avatar:", e)
+            raise ErrorDeleteAvatarException()
+
+        return SuccessfulResponse()
 
     async def get_current_user_for_refresh(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
         return await self.validate_user(expected_token_type=REFRESH_TOKEN_TYPE, token=token.credentials)
