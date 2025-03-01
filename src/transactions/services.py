@@ -25,7 +25,7 @@ class TransactionService:
 
         return transaction
 
-    async def confirm_transaction(self, transaction_id: int, user: User) -> Transaction:
+    async def confirm_transaction(self, transaction_id: str, user: User) -> Transaction:
         transaction = await self.get_transaction_by_id(transaction_id, user)
         return await self.repository.confirm_transaction(transaction.id)
 
@@ -55,8 +55,8 @@ class TransactionService:
             product.price
         )
         await ProductService().update_product_count(product_id, product.count - buy_count)
+        await self.confirm_transaction(payment_id, user)
 
-        print("HARA")
         return confirmation_url
 
 
