@@ -14,7 +14,7 @@ class Transaction(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     buy_count: Mapped[int] = mapped_column()
-    seller_inn: Mapped[int] = mapped_column(ForeignKey("sellers.inn", ondelete="CASCADE"))
+    seller_inn: Mapped[str] = mapped_column(ForeignKey("sellers.inn", ondelete="CASCADE"))
     buyer_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"))
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())

@@ -35,7 +35,6 @@ class ProductRepository:
             query = select(Product).where(Product.category == category)
             result = await session.execute(query)
             products = result.scalars().all()
-            print(products)
 
         return products
 
