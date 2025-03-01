@@ -9,4 +9,5 @@ class TransactionResponse(BaseModel):
     buyer_id: int
     buy_count: int
     product_id: int
+    amount: int
     created_at: datetime

@@ -1,4 +1,5 @@
 import random
+import uuid
 from typing import Optional, List
 
 from sqlalchemy import insert, select, delete, update
@@ -27,6 +28,14 @@ class TransactionRepository:
 
         return transaction
 
+    async def get_transaction_by_idempotency_key(self, idempotency_key: str):
+        async with async_session() as session:
+            query = select(Transaction).where(Transaction.idempotency_key == idempotency_key)
+            result = await session.execute(query)
+            transaction = result.scalars().first()
+
+        return transaction
+
     async def get_all_buyer_transaction(self, buyer_id: int) -> List[Transaction]:
         async with async_session() as session:
             query = select(Transaction).where(Transaction.buyer_id == buyer_id)
@@ -35,8 +44,20 @@ class TransactionRepository:
 
         return transactions
 
-    async def create_transaction(self, seller_inn: str, buyer_id: int, product_id: int, buy_count: int) -> Transaction:
+    async def confirm_transaction(self, transaction_id: int) -> Transaction:
+        async with async_session() as session:
+            stmt = update(Transaction).where(Transaction.id == transaction_id).values(is_confirmed=True)
+            await session.execute(stmt)
+            await session.commit()
+
+            transaction = await self.get_transaction_by_id(transaction_id)
+            return transaction
+
+    async def create_transaction(
+            self, seller_inn: str, buyer_id: int, product_id: int, buy_count: int, price: int
+    ) -> Transaction:
         transaction_id = await self.generate_id()
+        idempotency_key = str(uuid.uuid4())
 
         async with async_session() as session:
             stmt = insert(Transaction).values(
@@ -44,7 +65,9 @@ class TransactionRepository:
                 buy_count=buy_count,
                 seller_inn=seller_inn,
                 buyer_id=buyer_id,
-                product_id=product_id
+                product_id=product_id,
+                idempotency_key=idempotency_key,
+                amount=buy_count * price
             )
             await session.execute(stmt)
             await session.commit()
