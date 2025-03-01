@@ -6,7 +6,6 @@ from src.transactions.exceptions import NotFoundException, AccessException, Shor
 from src.transactions.models import Transaction
 from src.transactions.repositories import TransactionRepository
 from src.users.models import User
-from yookassa import Payment
 
 from src.users.services import UserService
 
