@@ -9,6 +9,15 @@ class EmailExistsException(HTTPException):
         super().__init__(status_code=self.status_code, detail=self.detail)
 
 
+class SellerExistsException(HTTPException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "This inn already registered"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+
 class ErrorLoadAvatarException(HTTPException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     detail = "Can't load avatar"

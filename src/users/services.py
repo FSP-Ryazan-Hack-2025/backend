@@ -13,12 +13,13 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
-from src.users.models import User
+from src.users.models import User, Seller
 from src.users.repositories import UserRepository
-from src.users.schemas import UserCreate, TokenData, UserEdit, UserLogin, SuccessfulResponse
+from src.users.schemas import UserCreate, TokenData, UserEdit, UserLogin, SuccessfulResponse, SellerLogin, \
+    SellerTokenData, SellerCreate
 from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, AccessException, \
     EmailExistsException, ErrorLoadAvatarException, ErrorDeleteAvatarException, EmailSenderException, \
-    IncorrectEmailAddressException, IncorrectVerifyCodeException
+    IncorrectEmailAddressException, IncorrectVerifyCodeException, SellerExistsException
 from utils.email_sender import send_verification_code
 
 http_bearer = HTTPBearer()
@@ -89,9 +90,29 @@ class UserService:
             expire_minutes=auth_config.access_token_expire_minutes
         )
 
+    def create_seller_access_token(self, seller: Seller) -> str:
+        jwt_payload = {
+            "sub": seller.inn,
+        }
+        return self.create_jwt(
+            token_type=ACCESS_TOKEN_TYPE,
+            token_data=jwt_payload,
+            expire_minutes=auth_config.access_token_expire_minutes
+        )
+
     def create_refresh_token(self, user: User) -> str:
         jwt_payload = {
             "sub": user.email
+        }
+        return self.create_jwt(
+            token_type=REFRESH_TOKEN_TYPE,
+            token_data=jwt_payload,
+            expire_timedelta=timedelta(days=auth_config.refresh_token_expire_days)
+        )
+
+    def create_seller_refresh_token(self, seller: Seller) -> str:
+        jwt_payload = {
+            "sub": seller.inn
         }
         return self.create_jwt(
             token_type=REFRESH_TOKEN_TYPE,
@@ -108,6 +129,15 @@ class UserService:
 
         return user
 
+    async def authenticate_seller(self, seller_login: SellerLogin) -> Optional[Seller]:
+        seller = await self.repository.get_seller_by_inn(seller_login.inn)
+        if not seller:
+            raise CredentialException()
+        if not validate_password(seller_login.password, seller.password_hash):
+            raise CredentialException()
+
+        return seller
+
     @staticmethod
     async def validate_admin_user(user) -> User:
         if not user.is_admin:
@@ -123,7 +153,7 @@ class UserService:
                 raise TokenTypeException(token_type, expected_token_type)
 
             email: str = payload.get("sub")
-            if email is None:
+            if email is None or not isinstance(email, str):
                 raise CredentialException()
             token_data = TokenData(email=email)
 
@@ -137,6 +167,29 @@ class UserService:
             raise CredentialException()
 
         return user
+
+    async def validate_seller(self, expected_token_type: str, token: str | bytes) -> Seller:
+        try:
+            payload = decode_jwt(token=token)
+            token_type = payload.get(TOKEN_TYPE_FIELD)
+            if token_type != expected_token_type:
+                raise TokenTypeException(token_type, expected_token_type)
+
+            inn: int = payload.get("sub")
+            if inn is None or not isinstance(inn, int):
+                raise CredentialException()
+            token_data = SellerTokenData(inn=inn)
+
+        except jwt.DecodeError:
+            raise CredentialException()
+        except jwt.ExpiredSignatureError:
+            raise CredentialException()
+
+        seller = await self.repository.get_seller_by_inn(token_data.inn)
+        if seller is None:
+            raise CredentialException()
+
+        return seller
 
     async def add_avatar(self, avatar: UploadFile, user: User) -> SuccessfulResponse:
         root = Path(__file__).parent.parent.parent
@@ -170,32 +223,20 @@ class UserService:
     async def get_current_user_for_refresh(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
         return await self.validate_user(expected_token_type=REFRESH_TOKEN_TYPE, token=token.credentials)
 
+    async def get_current_seller_for_refresh(
+            self,
+            token: HTTPAuthorizationCredentials = Depends(http_bearer)
+    ) -> Seller:
+        return await self.validate_seller(expected_token_type=REFRESH_TOKEN_TYPE, token=token.credentials)
+
     async def get_current_user(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
         return await self.validate_user(expected_token_type=ACCESS_TOKEN_TYPE, token=token.credentials)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    async def get_current_seller(
+            self,
+            token: HTTPAuthorizationCredentials = Depends(http_bearer)
+    ) -> Seller:
+        return await self.validate_seller(expected_token_type=ACCESS_TOKEN_TYPE, token=token.credentials)
 
     async def get_current_admin_user(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
         current_user = await self.get_current_user(token)
@@ -215,6 +256,12 @@ class UserService:
             raise EmailExistsException()
 
         return await self.repository.create_user(user)
+
+    async def create_seller(self, seller: SellerCreate):
+        if await self.repository.get_seller_by_inn(seller.inn) is not None:
+            raise SellerExistsException()
+
+        return await self.repository.create_seller(seller)
 
     async def edit_user_info(self, user: User, user_edit: UserEdit) -> User:
         return await self.repository.edit_info(user, user_edit)

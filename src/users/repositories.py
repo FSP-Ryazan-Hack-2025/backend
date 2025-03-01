@@ -7,8 +7,8 @@ from config_data.config import Config, load_config
 from utils import auth_settings
 from src.database import async_session
 
-from src.users.models import User, VerifyCode
-from src.users.schemas import UserCreate, UserEdit
+from src.users.models import User, VerifyCode, Seller
+from src.users.schemas import UserCreate, UserEdit, SellerCreate
 
 settings: Config = load_config(".env")
 global_vars = settings.variablesData
@@ -65,6 +65,22 @@ class UserRepository:
 
         return user
 
+    async def create_seller(self, new_seller: SellerCreate) -> Seller:
+        password = new_seller.password
+        seller_dc = new_seller.dict(exclude={"password"})
+        seller_dc["password_hash"] = auth_settings.hash_password(password)
+
+        async with async_session() as session:
+            stmt = insert(Seller).values(**seller_dc)
+            await session.execute(stmt)
+            await session.commit()
+
+            query = select(Seller).where(Seller.inn == seller_dc["inn"])
+            result = await session.execute(query)
+            seller = result.scalars().first()
+
+        return seller
+
     async def edit_password(self, user: User, password: str) -> None:
         async with async_session() as session:
             new_hashed_password = auth_settings.hash_password(password)
@@ -87,6 +103,13 @@ class UserRepository:
             result = await session.execute(query)
             user = result.scalars().first()
         return user
+
+    async def get_seller_by_inn(self, inn: int) -> Optional[Seller]:
+        async with async_session() as session:
+            query = select(Seller).where(Seller.inn == inn)
+            result = await session.execute(query)
+            seller = result.scalars().first()
+        return seller
 
     async def get_all_users(self) -> List[User]:
         async with async_session() as session:
