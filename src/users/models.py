@@ -10,15 +10,16 @@ from src.database import Base
 
 
 class Role(str, Enum):
-    self_employed = "Самозанятый"
-    individual_entrepreneur = "ИП"
-    organization = "ООО"
+    buyer = "buyer"
+    self_employed = "selfEmployed"
+    individual_entrepreneur = "individual"
+    organization = "company"
 
 
 class Seller(Base):
     __tablename__ = "sellers"
 
-    inn: Mapped[int] = mapped_column(primary_key=True)
+    inn: Mapped[str] = mapped_column(primary_key=True)
 
     name: Mapped[str] = mapped_column(String(50), default="")
     surname: Mapped[str] = mapped_column(String(50), default="")
@@ -49,6 +50,7 @@ class User(Base):
     surname: Mapped[str] = mapped_column(String(50), nullable=False)
     patronymic: Mapped[str] = mapped_column(String(50), nullable=False, default="testPatronymic")
     email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    role: Mapped[Role] = mapped_column(default=Role.buyer, nullable=True)
     is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
     password_hash: Mapped[bytes] = mapped_column(nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now(), nullable=False)

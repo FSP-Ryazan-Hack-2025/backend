@@ -11,6 +11,7 @@ from fastapi import Depends, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from config_data.config import Config, load_config
+from utils.INN_parser import parse_inn, parse_inn_self_employed
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
 from src.users.models import User, Seller
@@ -19,7 +20,8 @@ from src.users.schemas import UserCreate, TokenData, UserEdit, UserLogin, Succes
     SellerTokenData, SellerCreate
 from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, AccessException, \
     EmailExistsException, ErrorLoadAvatarException, ErrorDeleteAvatarException, EmailSenderException, \
-    IncorrectEmailAddressException, IncorrectVerifyCodeException, SellerExistsException
+    IncorrectEmailAddressException, IncorrectVerifyCodeException, SellerExistsException, InvalidInnFirstException, \
+    InvalidInnSecondException, InnIncorrectStatusException
 from utils.email_sender import send_verification_code
 
 http_bearer = HTTPBearer()
@@ -175,8 +177,8 @@ class UserService:
             if token_type != expected_token_type:
                 raise TokenTypeException(token_type, expected_token_type)
 
-            inn: int = payload.get("sub")
-            if inn is None or not isinstance(inn, int):
+            inn: str = payload.get("sub")
+            if inn is None:
                 raise CredentialException()
             token_data = SellerTokenData(inn=inn)
 
@@ -258,10 +260,42 @@ class UserService:
         return await self.repository.create_user(user)
 
     async def create_seller(self, seller: SellerCreate):
+
         if await self.repository.get_seller_by_inn(seller.inn) is not None:
             raise SellerExistsException()
 
-        return await self.repository.create_seller(seller)
+        try:
+            # seller_data = parse_inn(seller.inn)
+            seller_data = [1, 2, 3]
+        except ValueError:
+            seller_data = []
+
+        if seller.role.value in ["company", "individual"]:
+            if not seller_data:
+                raise InvalidInnFirstException()
+            else:
+                name = "testName"
+                surname = "testSurname"
+                patronymic = "testPatronymic"
+
+                return await self.repository.create_seller(seller, name, surname, patronymic)
+
+        elif seller.role.value == "selfEmployed":
+            self_employed = parse_inn_self_employed(str(seller.inn))
+
+            if self_employed["status"] is False:
+                raise InvalidInnSecondException()
+            else:
+                name = "testName"
+                surname = "testSurname"
+                patronymic = "testPatronymic"
+
+                return await self.repository.create_seller(seller, name, surname, patronymic)
+
+        else:
+            raise InnIncorrectStatusException()
+
+        # return await self.repository.create_seller(seller)
 
     async def edit_user_info(self, user: User, user_edit: UserEdit) -> User:
         return await self.repository.edit_info(user, user_edit)

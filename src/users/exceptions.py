@@ -17,6 +17,29 @@ class SellerExistsException(HTTPException):
         super().__init__(status_code=self.status_code, detail=self.detail)
 
 
+class InvalidInnFirstException(HTTPException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "This INN does not belong to company or individual entrepreneur"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+class InvalidInnSecondException(HTTPException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "This INN does not belong to self employed"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+class InnIncorrectStatusException(HTTPException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "Incorrect INN-person role"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
 
 class ErrorLoadAvatarException(HTTPException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR

@@ -65,10 +65,13 @@ class UserRepository:
 
         return user
 
-    async def create_seller(self, new_seller: SellerCreate) -> Seller:
+    async def create_seller(self, new_seller: SellerCreate, name: str, surname: str, patronymic: str) -> Seller:
         password = new_seller.password
         seller_dc = new_seller.dict(exclude={"password"})
         seller_dc["password_hash"] = auth_settings.hash_password(password)
+        seller_dc["name"] = name
+        seller_dc["surname"] = surname
+        seller_dc["patronymic"] = patronymic
 
         async with async_session() as session:
             stmt = insert(Seller).values(**seller_dc)
@@ -104,7 +107,7 @@ class UserRepository:
             user = result.scalars().first()
         return user
 
-    async def get_seller_by_inn(self, inn: int) -> Optional[Seller]:
+    async def get_seller_by_inn(self, inn: str) -> Optional[Seller]:
         async with async_session() as session:
             query = select(Seller).where(Seller.inn == inn)
             result = await session.execute(query)
