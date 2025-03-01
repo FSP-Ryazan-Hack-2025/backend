@@ -61,3 +61,7 @@ uvicorn==0.30.6
 watchfiles==0.24.0
 websockets==13.1
 yarl==1.17.2
+requests~=2.32.3
+bs4~=0.0.2
+beautifulsoup4~=4.13.3
+html5lib

@@ -22,7 +22,7 @@ class TokenData(BaseModel):
 
 
 class SellerTokenData(BaseModel):
-    inn: int | None = None
+    inn: str | None = None
 
 
 class Token(BaseModel):
@@ -32,17 +32,18 @@ class Token(BaseModel):
 
 
 class SellerCreate(BaseModel):
-    inn: int
+    inn: str
+    role: Role
     password: Annotated[str, Field(min_length=2, max_length=25)]
 
 
 class SellerLogin(BaseModel):
-    inn: int
+    inn: str
     password: Annotated[str, Field(min_length=2, max_length=25)]
 
 
 class SellerResponse(BaseModel):
-    inn: int
+    inn: str
     name: str
     surname: str
     patronymic: str

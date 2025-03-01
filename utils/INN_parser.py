@@ -4,18 +4,22 @@ import datetime as dt
 import httpx
 from bs4 import BeautifulSoup
 
+
 def parse_inn(inn):
     try:
-        response = requests.get(f'https://api-fns.ru/api/search?q={inn}&key=9d0d634994dd65988ebc3044c1af926661749ebe')
-        page=BeautifulSoup(response.text, 'html5lib')
+        response = requests.get(f'https://api-fns.ru/api/search?q={inn}&key=32689b0a573b4e56a63bd753a6531da27cce0896')
+        print(response.status_code, response.text)
+        page = BeautifulSoup(response.text, 'html5lib')
         json_data = json.loads(page.body.text)
         ip_data = list(json_data["items"][0].values())
         return ip_data[0]
-    except:
+    except Exception as e:
+        print(e)
         return ValueError('Неверный ИНН')
+        # raise ValueError('Неверный ИНН')
 
 
-def check_status(inn: str, date: dt.date = None) -> dict:
+def parse_inn_self_employed(inn: str, date: dt.date = None) -> dict:
     date = date or dt.date.today()
     date_str = date.isoformat()
     url = "https://statusnpd.nalog.ru/api/v1/tracker/taxpayer_status"
@@ -26,10 +30,11 @@ def check_status(inn: str, date: dt.date = None) -> dict:
     resp = httpx.post(url=url, json=data)
     return resp.json()
 
-        
+
 if __name__ == "__main__":
-    print(parse_inn("623008230466"))
-    response = check_status("623008230466")
+    default_inn = 623008230466
+    print(parse_inn(str(default_inn)))
+    response = parse_inn_self_employed(str(default_inn))
     print(response)
 
 # username = ip_data["ФИОПолн"]
