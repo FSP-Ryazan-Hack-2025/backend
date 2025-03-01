@@ -37,8 +37,8 @@ class SellerCreate(BaseModel):
     name: str
     surname: str
     patronymic: str
-    passport_series: int
-    passport_number: int
+    passport_series: str
+    passport_number: str
     birthday_date: date
     role: Role
     password: Annotated[str, Field(min_length=2, max_length=25)]
