@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Annotated
 from pydantic import BaseModel, Field
 
-from src.users.models import Gender
+from src.users.models import Role
 
 
 class SuccessfulResponse(BaseModel):
@@ -20,17 +21,41 @@ class TokenData(BaseModel):
     email: str | None = None
 
 
+class SellerTokenData(BaseModel):
+    inn: int | None = None
+
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str | None = None
     token_type: str = "Bearer"
 
 
+class SellerCreate(BaseModel):
+    inn: int
+    password: Annotated[str, Field(min_length=2, max_length=25)]
+
+
+class SellerLogin(BaseModel):
+    inn: int
+    password: Annotated[str, Field(min_length=2, max_length=25)]
+
+
+class SellerResponse(BaseModel):
+    inn: int
+    name: str
+    surname: str
+    patronymic: str
+    about: str
+    role: Role
+    created_at: datetime
+
+
 class UserCreate(BaseModel):
     name: Annotated[str, Field(min_length=2, max_length=50)]
     surname: Annotated[str, Field(min_length=2, max_length=50)]
+    patronymic: Annotated[str, Field(min_length=2, max_length=50)]
     email: Annotated[str, Field(min_length=2, max_length=50)]
-    gender: Gender
     password: Annotated[str, Field(min_length=2, max_length=25)]
 
 
@@ -40,14 +65,15 @@ class UserLogin(BaseModel):
 
 
 class UserEdit(BaseModel):
-    name: str
-    surname: str
-    gender: Gender
+    name: Annotated[str, Field(min_length=2, max_length=50)]
+    surname: Annotated[str, Field(min_length=2, max_length=50)]
+    patronymic: Annotated[str, Field(min_length=2, max_length=50)]
 
 
 class UserResponse(BaseModel):
     id: int
     name: str
     surname: str
+    patronymic: str
     email: str
-    gender: Gender
+    created_at: datetime
