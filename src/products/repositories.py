@@ -46,6 +46,15 @@ class ProductRepository:
 
         return product
 
+    async def update_product_count(self, product_id: int, new_count) -> Product:
+        async with async_session() as session:
+            stmt = update(Product).where(Product.id == product_id).values(count=new_count)
+            await session.execute(stmt)
+            await session.commit()
+
+            upd_product = await self.get_product_by_id(product_id)
+            return upd_product
+
     async def create_product(self, new_product: ProductCreate, seller_inn: int) -> Product:
         product_dc = new_product.dict()
         product_dc["seller_inn"] = seller_inn

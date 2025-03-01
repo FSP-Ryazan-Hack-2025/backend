@@ -35,6 +35,9 @@ class ProductService:
     async def create_product(self, product: ProductCreate, seller_inn: int) -> Product:
         return await self.repository.create_product(product, seller_inn)
 
+    async def update_product_count(self, product_id: int, new_count: int) -> Product:
+        return await self.repository.update_product_count(product_id, new_count)
+
     async def edit_product(self, product_edit: ProductEdit, product_id: int, seller: Seller) -> Product:
         product = await self.get_product_by_id(product_id)
         self.validate_product(product, seller.inn)
