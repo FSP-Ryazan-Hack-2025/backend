@@ -8,6 +8,7 @@ from starlette.staticfiles import StaticFiles
 
 from src.users.user_routers import buyer_router, seller_router
 from src.products.routers import router as product_router
+from src.transactions.routers import router as transaction_router
 
 
 @asynccontextmanager
@@ -50,6 +51,7 @@ async def ping_pong():
 app.include_router(buyer_router)
 app.include_router(seller_router)
 app.include_router(product_router)
+app.include_router(transaction_router)
 
 if __name__ == "__main__":
     uvicorn.run(

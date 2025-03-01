@@ -13,7 +13,7 @@ class TransactionService:
 
     async def get_transaction_by_id(self, transaction_id: int, user: User) -> Transaction:
         transaction = await self.repository.get_transaction_by_id(transaction_id)
-        if transaction.buyer_id != user.id:
+        if transaction is None or transaction.buyer_id != user.id:
             raise NotFoundException()
 
         return transaction
@@ -30,5 +30,3 @@ class TransactionService:
         # Добавить логику обновления количества товара
 
         return transaction
-
-
