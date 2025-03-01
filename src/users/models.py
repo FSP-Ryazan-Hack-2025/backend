@@ -25,6 +25,11 @@ class Seller(Base):
     surname: Mapped[str] = mapped_column(String(50), nullable=True, default="")
     patronymic: Mapped[str] = mapped_column(String(50), nullable=True, default="")
     about: Mapped[str] = mapped_column(String(1000), nullable=True, default="")
+
+    passport_series: Mapped[int] = mapped_column(nullable=True)
+    passport_number: Mapped[int] = mapped_column(nullable=True)
+    birthday_date: Mapped[datetime.date] = mapped_column(nullable=True)
+
     role: Mapped[Role] = mapped_column(default=Role.self_employed)
 
     password_hash: Mapped[bytes] = mapped_column(nullable=False)

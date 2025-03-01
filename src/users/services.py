@@ -279,26 +279,26 @@ class UserService:
             seller_data = []
 
         if seller.role.value in ["company", "individual"]:
-            if not seller_data:
-                raise InvalidInnFirstException()
-            else:
-                name = "testName"
-                surname = "testSurname"
-                patronymic = "testPatronymic"
+            # if not seller_data:
+            #     raise InvalidInnFirstException()
+            # else:
+            #     name = "testName"
+            #     surname = "testSurname"
+            #     patronymic = "testPatronymic"
 
-                return await self.repository.create_seller(seller, name, surname, patronymic)
+            return await self.repository.create_seller(seller)
 
         elif seller.role.value == "selfEmployed":
-            self_employed = parse_inn_self_employed(str(seller.inn))
+            # self_employed = parse_inn_self_employed(str(seller.inn))
+            #
+            # if self_employed["status"] is False:
+            #     raise InvalidInnSecondException()
+            # else:
+            #     name = "testName"
+            #     surname = "testSurname"
+            #     patronymic = "testPatronymic"
 
-            if self_employed["status"] is False:
-                raise InvalidInnSecondException()
-            else:
-                name = "testName"
-                surname = "testSurname"
-                patronymic = "testPatronymic"
-
-                return await self.repository.create_seller(seller, name, surname, patronymic)
+            return await self.repository.create_seller(seller)
 
         else:
             raise InnIncorrectStatusException()

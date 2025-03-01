@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Annotated, List
 from pydantic import BaseModel, Field
 
@@ -34,6 +34,12 @@ class Token(BaseModel):
 
 class SellerCreate(BaseModel):
     inn: str
+    name: str
+    surname: str
+    patronymic: str
+    passport_series: int
+    passport_number: int
+    birthday_date: date
     role: Role
     password: Annotated[str, Field(min_length=2, max_length=25)]
 

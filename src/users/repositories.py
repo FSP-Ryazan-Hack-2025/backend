@@ -65,13 +65,10 @@ class UserRepository:
 
         return user
 
-    async def create_seller(self, new_seller: SellerCreate, name: str, surname: str, patronymic: str) -> Seller:
+    async def create_seller(self, new_seller: SellerCreate) -> Seller:
         password = new_seller.password
         seller_dc = new_seller.dict(exclude={"password"})
         seller_dc["password_hash"] = auth_settings.hash_password(password)
-        seller_dc["name"] = name
-        seller_dc["surname"] = surname
-        seller_dc["patronymic"] = patronymic
 
         async with async_session() as session:
             stmt = insert(Seller).values(**seller_dc)

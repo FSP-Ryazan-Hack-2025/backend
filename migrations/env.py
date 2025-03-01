@@ -12,6 +12,7 @@ from src.database import Base
 
 from src.users.models import User, VerifyCode, Seller  # noqa
 from src.products.models import Product  # noqa
+from src.transactions.models import Transaction  # noqa
 
 from alembic import context
 
