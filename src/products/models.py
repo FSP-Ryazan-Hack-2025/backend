@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Dict, Any
 
 from sqlalchemy import func, String, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
 
@@ -34,6 +34,8 @@ class Product(Base):
     description: Mapped[str] = mapped_column(nullable=True)
     seller_inn: Mapped[int] = mapped_column(ForeignKey("sellers.inn", ondelete="CASCADE"))
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
+
+    seller: Mapped["Seller"] = relationship(back_populates="products", uselist=False)
 
     def to_dict(self) -> Dict[str, Any]:
         return {

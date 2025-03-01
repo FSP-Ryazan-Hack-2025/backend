@@ -1,10 +1,10 @@
 import datetime
 
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from sqlalchemy import func, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
 
@@ -30,6 +30,9 @@ class Seller(Base):
     password_hash: Mapped[bytes] = mapped_column(nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now(), nullable=False)
 
+    products: Mapped[List["Product"]] = relationship(back_populates="seller", uselist=True, lazy="selectin",
+                                                     cascade="all, delete-orphan")
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "inn": self.inn,
@@ -38,7 +41,8 @@ class Seller(Base):
             "patronymic": self.patronymic,
             "about": self.about,
             "role": self.role.value,
-            "created_at": self.created_at
+            "created_at": self.created_at,
+            "products": [product.to_dict() for product in self.products],
         }
 
 
@@ -62,7 +66,7 @@ class User(Base):
             "surname": self.surname,
             "patronymic": self.patronymic,
             "email": self.email,
-            "created_at": self.created_at
+            "created_at": self.created_at,
         }
 
 

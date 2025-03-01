@@ -252,6 +252,12 @@ class UserService:
             raise NotFoundException()
         return user
 
+    async def get_seller_by_inn(self, seller_inn: str) -> Seller:
+        seller = await self.repository.get_seller_by_inn(seller_inn)
+        if seller is None:
+            raise NotFoundException()
+        return seller
+
     async def get_all_users(self) -> List[User]:
         return await self.repository.get_all_users()
 
@@ -334,6 +340,9 @@ class UserService:
 
     async def delete_user(self, user: User) -> None:
         return await self.repository.delete_user(user)
+
+    async def delete_seller(self, seller: Seller):
+        return await self.repository.delete_seller(seller)
 
     async def delete_user_by_id(self, user_id: int):
         user = await self.get_user_by_id(user_id)

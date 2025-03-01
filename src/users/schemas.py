@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, List
 from pydantic import BaseModel, Field
 
+from src.products.schemas import ProductResponse
 from src.users.models import Role
 
 
@@ -50,6 +51,7 @@ class SellerResponse(BaseModel):
     about: str
     role: Role
     created_at: datetime
+    products: List[ProductResponse]
 
 
 class UserCreate(BaseModel):
