@@ -79,17 +79,29 @@ async def edit_user_password(
 
 
 @buyer_router.get("/self", response_model=UserResponse)
-async def login_for_access_token(
+async def login_buyer_for_access_token(
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> UserResponse:
     return UserResponse(**current_user.to_dict())
 
 
+@buyer_router.get("/{buyer_id}", response_model=UserResponse)
+async def get_buyer_by_id(buyer_id: int) -> UserResponse:
+    buyer = await UserService().get_user_by_id(buyer_id)
+    return UserResponse(**buyer.to_dict())
+
+
 @seller_router.get("/self", response_model=SellerResponse)
-async def login_for_access_token(
+async def login_seller_for_access_token(
         current_seller: Annotated[Seller, Depends(UserService().get_current_seller)]
 ) -> SellerResponse:
     return SellerResponse(**current_seller.to_dict())
+
+
+@seller_router.get("/{seller_inn}", response_model=SellerResponse)
+async def get_seller_by_id(seller_inn: str) -> SellerResponse:
+    seller = await UserService().get_seller_by_inn(seller_inn)
+    return SellerResponse(**seller.to_dict())
 
 
 @buyer_router.post("/avatar", response_model=SuccessfulResponse)
@@ -128,4 +140,12 @@ async def delete_user(
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> SuccessfulResponse:
     await UserService().delete_user(current_user)
+    return SuccessfulResponse()
+
+
+@seller_router.delete("/", response_model=SuccessfulResponse)
+async def delete_seller(
+        current_seller: Annotated[Seller, Depends(UserService().get_current_seller)]
+) -> SuccessfulResponse:
+    await UserService().delete_seller(current_seller)
     return SuccessfulResponse()
