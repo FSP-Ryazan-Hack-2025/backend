@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class TransactionResponse(BaseModel):
-    id: int
+    id: str
     seller_inn: str
     buyer_id: int
     buy_count: int

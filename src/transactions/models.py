@@ -12,7 +12,7 @@ from src.database import Base
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(primary_key=True)
     buy_count: Mapped[int] = mapped_column()
     seller_inn: Mapped[str] = mapped_column(ForeignKey("sellers.inn", ondelete="CASCADE"))
     buyer_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))

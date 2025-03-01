@@ -13,14 +13,8 @@ global_vars = settings.variablesData
 
 
 class TransactionRepository:
-    async def generate_id(self) -> int:
-        unique_id = random.randint(global_vars.MIN_ID, global_vars.MAX_ID)
-        while await self.get_transaction_by_id(unique_id):
-            unique_id = random.randint(global_vars.MIN_ID, global_vars.MAX_ID)
 
-        return unique_id
-
-    async def get_transaction_by_id(self, transaction_id: int) -> Transaction:
+    async def get_transaction_by_id(self, transaction_id: str) -> Transaction:
         async with async_session() as session:
             query = select(Transaction).where(Transaction.id == transaction_id)
             result = await session.execute(query)
@@ -54,23 +48,24 @@ class TransactionRepository:
             return transaction
 
     async def create_transaction(
-            self, seller_inn: str, buyer_id: int, product_id: int, buy_count: int, price: int
+            self,
+            pay_id: int, idem_key: str, seller_inn: str, buyer_id: int, product_id: int, buy_count: int, price: int
     ) -> Transaction:
-        transaction_id = await self.generate_id()
-        idempotency_key = str(uuid.uuid4())
+        # transaction_id = await self.generate_id()
+        # idempotency_key = str(uuid.uuid4())
 
         async with async_session() as session:
             stmt = insert(Transaction).values(
-                id=transaction_id,
+                id=pay_id,
                 buy_count=buy_count,
                 seller_inn=seller_inn,
                 buyer_id=buyer_id,
                 product_id=product_id,
-                idempotency_key=idempotency_key,
+                idempotency_key=idem_key,
                 amount=buy_count * price
             )
             await session.execute(stmt)
             await session.commit()
 
-        new_transaction = await self.get_transaction_by_id(transaction_id)
+        new_transaction = await self.get_transaction_by_id(pay_id)
         return new_transaction
