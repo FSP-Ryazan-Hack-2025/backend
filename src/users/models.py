@@ -37,9 +37,10 @@ class User(Base):
             "gender": self.gender.value,
         }
 
-# class VerifyCode(Base):
-#     __tablename__ = "verify_codes"
-#
-#     id: Mapped[int] = mapped_column(primary_key=True)
-#     email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-#     code: Mapped[int] = mapped_column(nullable=False)
+
+class VerifyCode(Base):
+    __tablename__ = "verify_codes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    code: Mapped[int] = mapped_column(nullable=False)

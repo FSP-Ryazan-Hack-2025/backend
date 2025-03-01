@@ -8,6 +8,14 @@ class SuccessfulResponse(BaseModel):
     success: str = "ok"
 
 
+class SuccessfulGetVerifyCodeResponse(BaseModel):
+    success: str = "The verify code has been successfully sent to the email"
+
+
+class SuccessfulValidation(BaseModel):
+    success: str = "Successful Validation!"
+
+
 class TokenData(BaseModel):
     email: str | None = None
 
