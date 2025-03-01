@@ -28,8 +28,21 @@ class Product(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     category: Mapped[ProductCategory] = mapped_column(default=ProductCategory.other)
+    name: Mapped[str] = mapped_column()
     price: Mapped[int] = mapped_column()
     count: Mapped[int] = mapped_column()
     description: Mapped[str] = mapped_column(nullable=True)
     seller_inn: Mapped[int] = mapped_column(ForeignKey("sellers.inn", ondelete="CASCADE"))
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "category": self.category,
+            "price": self.price,
+            "count": self.count,
+            "description": self.description,
+            "seller_inn": self.seller_inn,
+            "created_at": self.created_at
+        }

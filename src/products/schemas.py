@@ -7,6 +7,7 @@ from src.products.models import ProductCategory
 
 class ProductCreate(BaseModel):
     category: ProductCategory
+    name: str
     price: int
     count: int
     description: str
@@ -14,6 +15,7 @@ class ProductCreate(BaseModel):
 
 class ProductEdit(BaseModel):
     category: ProductCategory
+    name: str
     price: int
     count: int
     description: str
@@ -21,6 +23,7 @@ class ProductEdit(BaseModel):
 
 class ProductResponse(BaseModel):
     id: int
+    name: str
     price: int
     count: int
     description: str

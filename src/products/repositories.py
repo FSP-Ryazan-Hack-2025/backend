@@ -5,7 +5,7 @@ from sqlalchemy import insert, select, delete, update
 
 from config_data.config import Config, load_config
 from src.products.exceptions import AccessException, NotFoundException
-from src.products.models import Product
+from src.products.models import Product, ProductCategory
 from src.products.schemas import ProductCreate, ProductEdit
 from utils import auth_settings
 from src.database import async_session
@@ -21,6 +21,23 @@ class ProductRepository:
             unique_id = random.randint(global_vars.MIN_ID, global_vars.MAX_ID)
 
         return unique_id
+
+    async def get_all_products(self) -> List[Product]:
+        async with async_session() as session:
+            query = select(Product)
+            result = await session.execute(query)
+            products = result.scalars().all()
+
+        return products
+
+    async def get_all_products_by_category(self, category: ProductCategory) -> List[Product]:
+        async with async_session() as session:
+            query = select(Product).where(Product.category == category)
+            result = await session.execute(query)
+            products = result.scalars().all()
+            print(products)
+
+        return products
 
     async def get_product_by_id(self, product_id: int) -> Product:
         async with async_session() as session:
@@ -57,5 +74,3 @@ class ProductRepository:
             stmt = delete(Product).where(Product.id == product_id)
             await session.execute(stmt)
             await session.commit()
-
-
