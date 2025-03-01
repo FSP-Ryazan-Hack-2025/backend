@@ -3,5 +3,7 @@ from typing import Annotated
 from pydantic import BaseModel, Field
 
 
-class TransactionCreate(BaseModel):
-    buy_count: int
+class TransactionResponse(BaseModel):
+    pass
+
+
