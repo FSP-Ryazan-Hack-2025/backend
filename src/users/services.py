@@ -164,7 +164,9 @@ class UserService:
         except jwt.ExpiredSignatureError:
             raise CredentialException()
 
+        print(token_data.email, "HAHHAHAH")
         user = await self.repository.get_user_by_email(token_data.email)
+        print("WHAT???")
         if user is None:
             raise CredentialException()
 

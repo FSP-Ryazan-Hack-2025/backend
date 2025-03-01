@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from src.database import Base
 
 
-class Role(str, Enum):
+class Role(Enum):
     buyer = "buyer"
     self_employed = "selfEmployed"
     individual_entrepreneur = "individual"
@@ -21,9 +21,9 @@ class Seller(Base):
 
     inn: Mapped[str] = mapped_column(primary_key=True)
 
-    name: Mapped[str] = mapped_column(String(50), default="")
-    surname: Mapped[str] = mapped_column(String(50), default="")
-    patronymic: Mapped[str] = mapped_column(String(50), default="")
+    name: Mapped[str] = mapped_column(String(50), nullable=True, default="")
+    surname: Mapped[str] = mapped_column(String(50), nullable=True, default="")
+    patronymic: Mapped[str] = mapped_column(String(50), nullable=True, default="")
     about: Mapped[str] = mapped_column(String(1000), nullable=True, default="")
     role: Mapped[Role] = mapped_column(default=Role.self_employed)
 
@@ -46,10 +46,10 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
-    surname: Mapped[str] = mapped_column(String(50), nullable=False)
-    patronymic: Mapped[str] = mapped_column(String(50), nullable=False, default="testPatronymic")
-    email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=True)
+    surname: Mapped[str] = mapped_column(String(50), nullable=True)
+    patronymic: Mapped[str] = mapped_column(String(50), nullable=True)
+    email: Mapped[str] = mapped_column(String(50), unique=True, nullable=True)
     role: Mapped[Role] = mapped_column(default=Role.buyer, nullable=True)
     is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
     password_hash: Mapped[bytes] = mapped_column(nullable=False)
