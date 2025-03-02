@@ -54,27 +54,4 @@ def parse_passport_data(fam: str, nam: str, otch: str, bdate: str, docno: str):
         # raise ValueError('Неверные паспортные данные')
 
 
-if __name__ == "__main__":
-    default_inn = 623008230466
-    print(parse_inn(str(default_inn)))
-    response = parse_inn_self_employed(str(default_inn))
-    print(response)
-    print(parse_passport_data("Панков", "Иван", "Александрович", "06.11.2005", "6119147212"))
 
-# username = ip_data["ФИОПолн"]
-# inn = ip_data["ИНН"]
-# ogrn = ip_data["ОГРН"]
-# date_ogrn = ip_data["ДатаОГРН"]
-# status = ip_data["Статус"]
-# address = ip_data["АдресПолн"]
-# activity = ip_data["ОснВидДеят"]
-
-# print(f"ФИО: {username}")
-# print(f"ИНН: {inn}")
-# print(f"ОГРН: {ogrn}")
-# print(f"Дата ОГРН: {date_ogrn}")
-# print(f"Статус: {status}")
-# print(f"Адрес: {address}")
-# print(f"Вид деятельности: {activity}")
-
-# print(page)
