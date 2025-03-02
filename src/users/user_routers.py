@@ -104,28 +104,6 @@ async def get_seller_by_id(seller_inn: str) -> SellerResponse:
     return SellerResponse(**seller.to_dict())
 
 
-@buyer_router.post("/avatar", response_model=SuccessfulResponse)
-async def add_avatar(
-        current_user: Annotated[User, Depends(UserService().get_current_user)],
-        avatar: UploadFile
-) -> SuccessfulResponse:
-    return await UserService().add_avatar(avatar, current_user)
-
-
-@buyer_router.get("/avatar", response_model=str)
-async def get_avatar_url(
-        current_user: Annotated[User, Depends(UserService().get_current_user)]
-) -> str:
-    return await UserService().get_avatar_url(current_user)
-
-
-@buyer_router.delete("/avatar", response_model=SuccessfulResponse)
-async def delete_avatar(
-        current_user: Annotated[User, Depends(UserService().get_current_user)]
-) -> SuccessfulResponse:
-    return await UserService().delete_avatar(current_user)
-
-
 @buyer_router.put("/edit", response_model=UserResponse)
 async def edit_user(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
