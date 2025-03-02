@@ -13,6 +13,13 @@ from src.users.services import UserService
 router = APIRouter(tags=["product"], prefix="/product")
 
 
+@router.get("/image", response_model=str)
+async def get_image_url(
+        product_id: int
+) -> str:
+    return await ProductService().get_image_url(product_id)
+
+
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product_by_id(
         product_id: int
@@ -31,6 +38,23 @@ async def get_products(
         products = await ProductService().get_all_products_by_category(category)
 
     return list(map(lambda x: ProductResponse(**x.to_dict()), products))
+
+
+@router.post("/load_image", response_model=SuccessfulResponse)
+async def add_avatar(
+        current_seller: Annotated[Seller, Depends(UserService().get_current_seller)],
+        image: UploadFile,
+        product_id: int
+) -> SuccessfulResponse:
+    return await ProductService().add_image(image, current_seller, product_id)
+
+
+@router.delete("/avatar", response_model=SuccessfulResponse)
+async def delete_avatar(
+        current_seller: Annotated[Seller, Depends(UserService().get_current_seller)],
+        product_id: int
+) -> SuccessfulResponse:
+    return await ProductService().delete_image(current_seller, product_id)
 
 
 @router.post("/", response_model=ProductResponse)

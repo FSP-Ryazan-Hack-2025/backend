@@ -1,14 +1,60 @@
+import os
+import shutil
+from pathlib import Path
 from typing import List
 
-from src.products.exceptions import NotFoundException, AccessException
+from fastapi import UploadFile
+
+from src.products.exceptions import NotFoundException, AccessException, ErrorLoadImageException
 from src.products.models import Product, ProductCategory
 from src.products.repositories import ProductRepository
 from src.products.schemas import ProductCreate, ProductEdit
+from src.users.exceptions import ErrorDeleteAvatarException
 from src.users.models import Seller
+from src.users.schemas import SuccessfulResponse
 
 
 class ProductService:
     repository = ProductRepository()
+
+    async def add_image(self, avatar: UploadFile, seller: Seller, product_id: int) -> SuccessfulResponse:
+
+        product = await self.get_product_by_id(product_id)
+        if product.seller_inn != seller.inn:
+            raise AccessException()
+
+        root = Path(__file__).parent.parent.parent
+        image_path = os.path.join(root, "assets", "product_images", f"{product_id}.webp")
+
+        try:
+            with open(image_path, "wb+") as avatar_obj:
+                shutil.copyfileobj(avatar.file, avatar_obj)
+        except Exception as e:
+            print("Error loading avatar:", e)
+            raise ErrorLoadImageException()
+
+        return SuccessfulResponse()
+
+    async def get_image_url(self, product_id: int) -> str:
+        return f"static/product_images/{product_id}.webp"
+
+    async def delete_image(self, seller: Seller, product_id: int) -> SuccessfulResponse:
+
+        product = await self.get_product_by_id(product_id)
+        if product.seller_inn != seller.inn:
+            raise AccessException()
+
+        root = Path(__file__).parent.parent.parent
+        image_path = os.path.join(root, "assets", "product_images", f"{product_id}.webp")
+
+        try:
+            if os.path.exists(image_path):
+                os.remove(image_path)
+        except Exception as e:
+            print("Error deleting avatar:", e)
+            raise ErrorDeleteAvatarException()
+
+        return SuccessfulResponse()
 
     async def get_product_by_id(self, product_id: int) -> Product:
         product = await self.repository.get_product_by_id(product_id)
