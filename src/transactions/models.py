@@ -22,6 +22,10 @@ class Transaction(Base):
     idempotency_key: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
+    seller: Mapped["Seller"] = relationship(back_populates="transactions", uselist=False)
+    product: Mapped["Product"] = relationship(back_populates="transactions", uselist=False)
+    buyer: Mapped["User"] = relationship(back_populates="transactions", uselist=False)
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,

@@ -38,6 +38,9 @@ class Seller(Base):
     products: Mapped[List["Product"]] = relationship(back_populates="seller", uselist=True, lazy="selectin",
                                                      cascade="all, delete-orphan")
 
+    transactions: Mapped[List["Transaction"]] = relationship(back_populates="seller", uselist=True, lazy="selectin",
+                                                             cascade="all, delete-orphan")
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "inn": self.inn,
@@ -48,6 +51,7 @@ class Seller(Base):
             "role": self.role.value,
             "created_at": self.created_at,
             "products": [product.to_dict() for product in self.products],
+            "transactions": [transaction.to_dict() for transaction in self.transactions]
         }
 
 
@@ -64,6 +68,9 @@ class User(Base):
     password_hash: Mapped[bytes] = mapped_column(nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now(), nullable=False)
 
+    transactions: Mapped[List["Transaction"]] = relationship(back_populates="buyer", uselist=True, lazy="selectin",
+                                                             cascade="all, delete-orphan")
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
@@ -72,6 +79,7 @@ class User(Base):
             "patronymic": self.patronymic,
             "email": self.email,
             "created_at": self.created_at,
+            "transactions": [transaction.to_dict() for transaction in self.transactions]
         }
 
 

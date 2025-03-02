@@ -1,7 +1,7 @@
 import datetime
 
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from sqlalchemy import func, String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -37,6 +37,9 @@ class Product(Base):
 
     seller: Mapped["Seller"] = relationship(back_populates="products", uselist=False)
 
+    transactions: Mapped[List["Transaction"]] = relationship(back_populates="product", uselist=True, lazy="selectin",
+                                                             cascade="all, delete-orphan")
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
@@ -46,5 +49,6 @@ class Product(Base):
             "count": self.count,
             "description": self.description,
             "seller_inn": self.seller_inn,
-            "created_at": self.created_at
+            "created_at": self.created_at,
+            "transactions": [transaction.to_dict() for transaction in self.transactions]
         }

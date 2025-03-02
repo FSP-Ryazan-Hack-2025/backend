@@ -3,6 +3,7 @@ from typing import Annotated, List
 from pydantic import BaseModel, Field
 
 from src.products.schemas import ProductResponse
+from src.transactions.schemas import TransactionResponse
 from src.users.models import Role
 
 
@@ -58,6 +59,7 @@ class SellerResponse(BaseModel):
     role: Role
     created_at: datetime
     products: List[ProductResponse]
+    transactions: List[TransactionResponse]
 
 
 class UserCreate(BaseModel):
@@ -86,3 +88,4 @@ class UserResponse(BaseModel):
     patronymic: str
     email: str
     created_at: datetime
+    transactions: List[TransactionResponse]
