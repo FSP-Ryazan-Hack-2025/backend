@@ -59,7 +59,12 @@ class UserService:
             raise EmailExistsException()
 
         try:
-            code = send_verification_code(email)
+            # Use for prod
+            # code = send_verification_code(email)
+
+            # Use for dev
+            code = 77777
+
             potential_code = await self.repository.get_verify_code_by_email(email)
             if potential_code is not None:
                 await self.repository.update_verify_code(email, code)
@@ -73,10 +78,16 @@ class UserService:
 
     async def check_verify_code(self, email: str, code: int) -> bool:
         verify_code = await self.repository.get_verify_code_by_email(email)
+
         if verify_code is None:
             raise IncorrectEmailAddressException()
 
-        if verify_code.code != code:
+        # Use for prod
+        # if verify_code.code != code:
+        #     raise IncorrectVerifyCodeException()
+
+        # Use for dev
+        if verify_code.code != 77777:
             raise IncorrectVerifyCodeException()
 
         await self.repository.delete_verify_code_by_id(verify_code.id)
